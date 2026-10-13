@@ -1,0 +1,2 @@
+# Place private case folders here (e.g., cases/eb1a/materials/ or cases/niw/materials/).
+# Everything inside cases/ except this file is ignored by Git.

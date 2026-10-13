@@ -1,0 +1,27 @@
+# OS & editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Environment & credentials
+.env
+.env.*
+*.pem
+*.key
+
+# Private applicant case data (never commit)
+cases/*
+!cases/.gitkeep
+private_cases/
+cases_PRIVATE/
+uploads/
+materials/
+work/
+final/
+online/
+post-filing/
+*.local.md
+*.local.json

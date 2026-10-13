@@ -1,0 +1,166 @@
+% ==============================================================================
+% OpenPetition — Bidirectional Hyperlinked USCIS I-140 Petition & Exhibit Engine
+% ==============================================================================
+% Features:
+%   1. USCIS Lockbox-safe geometry (1-inch margins + top two-hole punch clearance)
+%   2. Running headers with Petitioner Name & Classification + "Page X of Y"
+%   3. Bidirectional Exhibit Macros:
+%      - \citeex{B-1}{p.~4} in the brief links directly to Exhibit B-1's anchor
+%        and records the brief page where Exhibit B-1 was cited.
+%      - \exhibitcoversheet{B-1}{Title}{Regulatory Hook}{Officer Highlighting Guide}
+%        generates a tabbed Exhibit Cover Sheet that automatically lists the
+%        pages in the brief where the exhibit is cited.
+% ==============================================================================
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[
+  letterpaper,
+  top=1.1in,
+  bottom=1.0in,
+  left=1.0in,
+  right=1.0in,
+  headheight=15pt
+]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage[
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  urlcolor=blue!60!black,
+  citecolor=blue!60!black,
+  bookmarksnumbered=true,
+  pdfstartview=FitH
+]{hyperref}
+
+% --- Configurable Case Metadata ---
+\newcommand{\PetitionerName}{[Petitioner Full Legal Name]}
+\newcommand{\PetitionClassification}{EB-1A Extraordinary Ability (INA \S\ 203(b)(1)(A))}
+\newcommand{\ServiceCenter}{USCIS Lockbox / Service Center}
+
+% --- Running Header & Footer (USCIS Officer Scan-Friendly) ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize\textbf{I-140 Petition:} \PetitionerName}
+\rhead{\footnotesize\PetitionClassification}
+\cfoot{\footnotesize Page \thepage\ of \pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.2pt}
+
+% --- Bidirectional Exhibit Citation & Back-Reference Engine ---
+\makeatletter
+\newcommand{\citeex}[2]{%
+  \leavevmode
+  \begingroup
+  % Record current page in the exhibit's back-reference list
+  \@ifundefined{exbackref@#1}{%
+    \expandafter\xdef\csname exbackref@#1\endcsname{\thepage}%
+  }{%
+    \expandafter\xdef\csname exbackref@#1\endcsname{\csname exbackref@#1\endcsname, \thepage}%
+  }%
+  \hyperref[exhibit:#1]{\textbf{[Exhibit~#1\if\relax\detokenize{#2}\relax\else, #2\fi]}}%
+  \endgroup
+}
+
+\newcommand{\getexbackrefs}[1]{%
+  \@ifundefined{exbackref@#1}{Referenced in Exhibit Index}{\csname exbackref@#1\endcsname}%
+}
+\makeatother
+
+% --- Officer Callout Box for Criterion / Prong Summaries ---
+\newtcolorbox{officersummary}[1]{
+  colback=gray!6,
+  colframe=black!65,
+  boxrule=0.6pt,
+  arc=2pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  title={\textbf{#1}},
+  fonttitle=\bfseries\small
+}
+
+% --- Scanner-Proof Exhibit Cover Sheet Macro ---
+\newcommand{\exhibitcoversheet}[4]{%
+  \clearpage
+  \phantomsection
+  \label{exhibit:#1}%
+  \addcontentsline{toc}{subsection}{Exhibit #1 — #2}%
+  \vspace*{0.25in}
+  \begin{center}
+    {\LARGE\bfseries EXHIBIT #1}\\[0.6em]
+    {\Large\bfseries #2}\\[1.2em]
+  \end{center}
+  \begin{tcolorbox}[colback=gray!5,colframe=black!75,boxrule=0.8pt,arc=2pt]
+    \renewcommand{\arraystretch}{1.35}
+    \begin{tabular}{@{}p{0.26\textwidth}p{0.68\textwidth}@{}}
+      \textbf{Petitioner / Beneficiary:} & \PetitionerName \\
+      \textbf{Classification:} & \PetitionClassification \\
+      \textbf{Statutory / Regulatory Hook:} & #3 \\
+      \textbf{Cited on Brief Page(s):} & \getexbackrefs{#1} \\
+      \textbf{Officer Highlighting Guide:} & #4 \\
+    \end{tabular}
+  \end{tcolorbox}
+  \vspace{0.2in}
+}
+
+\begin{document}
+
+% --- Formal USCIS Legal Brief Header ---
+\noindent
+\textbf{Date:} \today \\[0.4em]
+\textbf{To:} U.S. Citizenship and Immigration Services (\ServiceCenter) \\[0.4em]
+\textbf{Re:} \textbf{Form I-140, Immigrant Petition for Alien Worker} \\
+\hspace*{2.1em}\textbf{Petitioner / Beneficiary:} \PetitionerName \\
+\hspace*{2.1em}\textbf{Classification Sought:} \PetitionClassification
+
+\vspace{0.8em}
+\hrule height 0.8pt
+\vspace{1.0em}
+
+\section{Executive Summary \& Case Roadmap}
+
+\begin{officersummary}{Adjudicator Quick-Verify Summary (Preponderance Standard — Matter of Chawathe)}
+Under \textit{Matter of Chawathe}, 25 I\&N Dec. 369 (AAO 2010), a petitioner satisfies the burden of proof when the evidence shows that the claim is ``more likely than not'' (>50\%) true. Each factual assertion below is pinpointed to primary objective evidence and independent third-party benchmarks.
+\end{officersummary}
+
+This petition demonstrates that \PetitionerName\ satisfies the statutory and regulatory requirements for \PetitionClassification. As documented in the curriculum vitae and diploma \citeex{A-1}{pp.~1--3}, independent citation and percentile analysis \citeex{B-1}{p.~2}, and independent expert testimony \citeex{C-1}{p.~1}, the record establishes sustained acclaim and continuing national impact.
+
+\section{Beneficiary's Background \& Flagship Contributions}
+
+Replace this section with the domain bottleneck, what the Beneficiary specifically designed or discovered, measurable performance/adoption gains, and why independent organizations rely on the work \citeex{B-1}{pp.~3--5}.
+
+\section{Detailed Legal \& Evidentiary Analysis}
+
+\subsection{Regulatory Criterion / Prong Analysis}
+
+State the plain-language conclusion first, then walk through the 4-Axis Evidence Matrix (Primary record proof $\rightarrow$ Independent percentile benchmark $\rightarrow$ Downstream independent adoption $\rightarrow$ Expert corroboration \citeex{C-1}{p.~2}).
+
+\section{Conclusion}
+
+For the foregoing reasons, the preponderance of the evidence establishes that \PetitionerName\ fully qualifies for classification under \PetitionClassification. The Petitioner respectfully requests that USCIS approve this Form I-140 petition.
+
+\vspace{2em}
+\noindent Respectfully submitted,\\[2.5em]
+\rule{2.8in}{0.4pt}\\
+\textbf{\PetitionerName}\\
+Petitioner / Beneficiary (Self-Petitioner)
+
+% --- Sample Exhibit Cover Sheets ---
+\exhibitcoversheet{A-1}{Curriculum Vitae \& Advanced Degree Records}{8 C.F.R. \S\ 204.5(h)(2) / 8 C.F.R. \S\ 204.5(k)(2)}{See page 1 for Ph.D. conferral date and pages 2--4 for complete publication and patent record.}
+
+\exhibitcoversheet{B-1}{OpenAlex Field-Normalized Citation Percentile \& Independent Adoption Report}{8 C.F.R. \S\ 204.5(h)(3)(v) \& \textit{Kazarian} Step 2 / \textit{Dhanasar} Prong 2}{See highlighted table on page 2 showing Top 1\% year/subfield citation percentile and 3-Tier Lifetime Co-Author Graph screening.}
+
+\exhibitcoversheet{C-1}{Independent Expert Opinion Letter}{Corroborating Expert Testimony (\textit{Matter of Chawathe})}{See highlighted paragraphs on pages 1--2 detailing independent adoption of the Petitioner's methodology.}
+
+\end{document}

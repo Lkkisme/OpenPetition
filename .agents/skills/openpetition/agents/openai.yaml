@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenPetition"
+  short_description: "Evidence-based EB-1A and EB-2 NIW self-petition preparation"
+  default_prompt: "Use $openpetition to inspect my materials in cases/ and help me prepare my EB-1A or EB-2 NIW petition."

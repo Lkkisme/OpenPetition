@@ -1,0 +1,65 @@
+name: Check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify required skill, toolkit, Studio UI, and template files
+        run: |
+          for file in \
+            README.md \
+            README.zh-CN.md \
+            AGENTS.md \
+            CLAUDE.md \
+            LICENSE \
+            studio.mjs \
+            scripts/petition-toolkit.mjs \
+            templates/latex-exhibit-engine.tex \
+            cases/.gitkeep \
+            .agents/skills/openpetition/SKILL.md \
+            .agents/skills/openpetition/agents/openai.yaml \
+            .agents/skills/openpetition/references/eb1a.md \
+            .agents/skills/openpetition/references/niw.md \
+            .agents/skills/openpetition/references/benchmarking-and-evidence-research.md \
+            .agents/skills/openpetition/references/recommendation-letters-and-statements.md \
+            .agents/skills/openpetition/references/workspace-and-deliverables.md \
+            .agents/skills/openpetition/references/filing-forms-and-rfe.md
+          do
+            if [ ! -s "$file" ]; then
+              echo "Missing or empty required file: $file" >&2
+              exit 1
+            fi
+          done
+
+      - name: Run deterministic toolkit and Studio UI self-tests
+        run: |
+          node scripts/petition-toolkit.mjs --self-test
+          node studio.mjs --self-test
+
+      - name: Ensure no private case files or applicant documents are tracked
+        run: |
+          leaked=$(git ls-files cases/ | grep -v '^cases/\.gitkeep$' || true)
+          if [ -n "$leaked" ]; then
+            echo "Private case files must not be committed:" >&2
+            echo "$leaked" >&2
+            exit 1
+          fi
+          docs=$(git ls-files '*.pdf' '*.doc' '*.docx' '*.zip' || true)
+          if [ -n "$docs" ]; then
+            echo "Binary applicant documents must not be committed:" >&2
+            echo "$docs" >&2
+            exit 1
+          fi
